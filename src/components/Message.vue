@@ -1,17 +1,18 @@
 <script setup>
-import { ref } from "vue";
-import { useSocketIO } from "../helpers/socket.io";
+import { ref, onMounted } from "vue";
+import { useSocketIO } from "../helpers/socket";
 
-defineProps({
-  msg: String,
+let messageReceived = ref("waiting");
+onMounted(() => {
+  const { socket } = useSocketIO();
+  socket.on("msgToClient", (message) => {
+    saveMessage(message);
+  });
 });
 
-const { socket } = useSocketIO();
-socket.on("Socket-messages", () => {
-  console.log("Hi hi :)");
-});
-
-const count = ref(0);
+const saveMessage = (message) => {
+  messageReceived.value = message;
+};
 </script>
 
 <template>
@@ -22,11 +23,10 @@ const count = ref(0);
       This is a web app that uses websocket
     </h2>
     <div class="flex flex-row">
-      <p class="text-lg mr-5 my-auto text-white">Serial number: 112343</p>
+      <p class="text-lg mr-5 my-auto text-white">
+        Serial number: {{ messageReceived }}
+      </p>
       <img class="h-64 w-60" src="../assets/images/pc.png" alt="pcImage" />
     </div>
-    <!-- <button class="rounded-lg bg-orange-400" type="button" @click="count++">
-      count is: {{ count }}
-    </button> -->
   </div>
 </template>
